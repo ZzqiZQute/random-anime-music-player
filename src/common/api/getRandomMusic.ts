@@ -1,26 +1,32 @@
 import request from '../request';
+import axios from 'axios';
 
-export default async function () {
-    return await request<{
-        anime_info: {
-            atime: number;
-            bg: string;
-            desc: string;
-            id: string;
-            logo: string;
-            month: number;
-            title: string;
-            year: number;
-        };
-        atime: number;
-        author: string;
-        id: string;
-        play_url: string;
-        recommend: boolean;
-        title: string;
-        type: string;
-    }>({
+interface MusicInfo {
+    id: number;
+    title: string;
+    artist: string;
+    album: string;
+    cover: string;
+    link: string;
+}
+
+export default async function getRandomMusic (): Promise<MusicInfo> {
+    const music = await request<MusicInfo>({
         method: 'get',
         action: 'getRandomMusic'
     });
+    if (!music.title || !music.artist || !music.cover) {
+        return await getRandomMusic();
+    }
+    const link = (await axios.get('https://service-psjbwgo7-1253812015.bj.apigw.tencentcs.com/release/get_redirect_url', {
+        params: {
+            url: encodeURIComponent(music.link)
+        },
+        responseType: 'text'
+    })).data;
+    if (/\/404$/.test(link)) {
+        return await getRandomMusic();
+    }
+    music.link = link;
+    return music;
 }

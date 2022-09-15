@@ -1,32 +1,66 @@
-<script setup lang="ts">
+<script>
+    import PlayerTitle from './components/player-title.vue';
+    import PlayerCd from './components/player-cd.vue';
     import getRandomMusic from './common/api/getRandomMusic';
-    import { ref } from 'vue';
-    const audio = ref<HTMLAudioElement>();
-    const canClick = ref(true);
-    const title = ref<string>();
-    const handleClick = async () => {
-        if (canClick.value) {
-            canClick.value = false;
-            const music = await getRandomMusic();
-            title.value = music.title;
-            if (audio.value) {
-                audio.value.remove();
+    import { Howl, Howler } from 'howler';
+    let sound;
+    export default {
+        components: {
+            PlayerTitle,
+            PlayerCd
+        },
+        data () {
+            return {
+                playerTitle: '',
+                playerArtist: '',
+                playerCdImg: ''
             }
-            audio.value = document.createElement('audio');
-            audio.value.src = music.play_url;
-            document.body.append(audio.value);
-            await audio.value.play();
-            canClick.value = true;
+        },
+        methods: {
+            async handleClick () {
+                const music = await getRandomMusic();
+                if (!music.title || !music.artist || !music.cover) {
+                    await this.handleClick();
+                } else {
+                    this.playerTitle = music.title;
+                    this.playerArtist = music.artist;
+                    this.playerCdImg = music.cover;
+                    if (sound) {
+                        sound.stop();
+                    }
+                    sound = new Howl({
+                        src: [music.link]
+                    });
+                    sound.play();
+                }
+            }
         }
     };
 </script>
 
 <template>
-    <div class="app-main">
-        <h1>{{ title }}</h1>
-        <button @click="handleClick">点击播放</button>
+    <div class="container">
+        <player-title
+            :title="playerTitle"
+            :artist="playerArtist"
+        ></player-title>
+        <player-cd
+            :img-src="playerCdImg"
+        ></player-cd>
+        <button @click="handleClick">切换</button>
     </div>
 </template>
 
 <style lang="scss">
+    body {
+        margin: 0;
+
+        #app {
+            .container {
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
 </style>
