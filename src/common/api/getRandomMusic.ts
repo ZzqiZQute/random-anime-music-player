@@ -10,12 +10,13 @@ interface MusicInfo {
     link: string;
 }
 
+const musicTitleList: string[] = [];
 export default async function getRandomMusic (): Promise<MusicInfo> {
     const music = await request<MusicInfo>({
         method: 'get',
         action: 'getRandomMusic'
     });
-    if (!music.title || !music.artist || !music.cover) {
+    if (!music.title || !music.artist || !music.cover || musicTitleList.indexOf(music.title) !== -1) {
         return await getRandomMusic();
     }
     const link = (await axios.get('https://service-psjbwgo7-1253812015.bj.apigw.tencentcs.com/release/get_redirect_url', {
@@ -28,5 +29,6 @@ export default async function getRandomMusic (): Promise<MusicInfo> {
         return await getRandomMusic();
     }
     music.link = link;
+    musicTitleList.push(music.title);
     return music;
 }

@@ -24,6 +24,7 @@
 <style lang="scss">
     .player-title-wrapper {
         padding-top: 30px;
+        height: 80px;
         .player-title, .player-artist {
             text-align: center;
             font-size: 24px;

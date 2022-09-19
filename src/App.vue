@@ -1,13 +1,15 @@
 <script>
     import PlayerTitle from './components/player-title.vue';
     import PlayerCd from './components/player-cd.vue';
+    import PlayerControl from './components/player-control.vue';
     import getRandomMusic from './common/api/getRandomMusic';
     import { Howl, Howler } from 'howler';
     let sound;
     export default {
         components: {
             PlayerTitle,
-            PlayerCd
+            PlayerCd,
+            PlayerControl
         },
         data () {
             return {
@@ -40,6 +42,10 @@
 
 <template>
     <div class="container">
+        <div class="mask" :style="{
+            backgroundImage: `url(${playerCdImg})`,
+        }">
+        </div>
         <player-title
             :title="playerTitle"
             :artist="playerArtist"
@@ -47,7 +53,8 @@
         <player-cd
             :img-src="playerCdImg"
         ></player-cd>
-        <button @click="handleClick">切换</button>
+        <player-control
+        ></player-control>
     </div>
 </template>
 
@@ -60,6 +67,17 @@
                 height: 100vh;
                 display: flex;
                 flex-direction: column;
+                .mask {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background-size: cover;
+                    background-position: center;
+                    filter: blur(5px);
+                    z-index: -1;
+                }
             }
         }
     }
